@@ -241,8 +241,14 @@ if("${HIP_COMPILER}" MATCHES "hcc")
   endif()
 endif()
 
-target_include_directories(rccl PRIVATE ${ROCM_PATH}/rocm_smi/include)
-target_link_libraries(rccl PRIVATE hip::device dl -lrocm_smi64 -L${ROCM_PATH}/rocm_smi/lib)
+if(NOT DEFINED ENV{SMI_PATH})
+  set(SMI_PATH ${ROCM_PATH}/rocm_smi)
+else()
+  set(SMI_PATH $ENV{SMI_PATH})
+endif()
+
+target_include_directories(rccl PRIVATE ${SMI_PATH}/include)
+target_link_libraries(rccl PRIVATE hip::device dl -lrocm_smi64 -L${SMI_PATH}/lib)
 target_link_libraries(rccl INTERFACE hip::host)
 
 #Setup librccl.so version
