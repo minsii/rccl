@@ -29,6 +29,13 @@ endif()
 
 set(CMAKE_INSTALL_PREFIX "${ROCM_PATH}" CACHE PATH "")
 
+if(NOT DEFINED ENV{SMI_PATH})
+  set(SMI_PATH ${ROCM_PATH}/rocm_smi)
+else()
+  set(SMI_PATH $ENV{SMI_PATH})
+endif()
+
+
 #Set the AMDGPU_TARGETS with backward compatiblity
 if(COMMAND rocm_check_target_ids)
    rocm_check_target_ids(DEFAULT_AMDGPU_TARGETS
@@ -222,7 +229,7 @@ if(COLLTRACE)
   add_definitions(-DENABLE_COLLTRACE)
 endif()
 
-CHECK_INCLUDE_FILE_CXX("${ROCM_PATH}/rocm_smi/include/rocm_smi/rocm_smi64Config.h" HAVE_ROCM_SMI64CONFIG)
+CHECK_INCLUDE_FILE_CXX("${SMI_PATH}/include/rocm_smi/rocm_smi64Config.h" HAVE_ROCM_SMI64CONFIG)
 IF(HAVE_ROCM_SMI64CONFIG)
   add_definitions(-DUSE_ROCM_SMI64CONFIG)
 ENDIF()
@@ -265,8 +272,8 @@ if("${HIP_COMPILER}" MATCHES "hcc")
   endif()
 endif()
 
-target_include_directories(rccl PRIVATE ${ROCM_PATH}/rocm_smi/include)
-target_link_libraries(rccl PRIVATE hip::device dl -lrocm_smi64 -L${ROCM_PATH}/rocm_smi/lib)
+target_include_directories(rccl PRIVATE ${SMI_PATH}/include)
+target_link_libraries(rccl PRIVATE hip::device dl -lrocm_smi64 -L${SMI_PATH}/lib)
 target_link_libraries(rccl INTERFACE hip::host)
 
 #Setup librccl.so version
