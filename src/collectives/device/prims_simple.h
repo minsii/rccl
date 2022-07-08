@@ -107,7 +107,7 @@ private:
       int spins = 0;
       while (connStepCache + (isSendNotRecv ? NCCL_STEPS : 0) < step + StepPerSlice) {
         __builtin_amdgcn_s_sleep(8);
-        connStepCache = atomicAdd_system((unsigned long long *)connStepPtr, 0);
+        connStepCache = LOAD(connStepPtr);
         if (checkAbort(spins)) break;
         //if (spins == 0) printf("r=%d b=%d t=%d SPUN OUT got=%d want=%d\n", ncclShmem->comm.rank, blockIdx.x, threadIdx.x, int(connStepCache + (isSendNotRecv ? NCCL_STEPS : 0)), int(step+StepPerSlice));
         if (spins == 0) traceData(__LINE__, threadIdx.x, int(connStepCache + (isSendNotRecv ? NCCL_STEPS : 0)), int(step+StepPerSlice));
@@ -149,9 +149,6 @@ private:
 
   template<int Recv, int Send>
   inline __device__ void postPeer() {
-    if ((flags & Send*RolePostSend) && next_hdp_reg)
-      atomicExch_system(next_hdp_reg, 0x1);
-
     if (flags & (Recv*RolePostRecv | Send*RolePostSend)) {
       step += StepPerSlice;
       atomicExch_system((unsigned long long *)connStepPtr, step);
