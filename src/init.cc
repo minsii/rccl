@@ -37,7 +37,7 @@
 //#include <hsa/hsa_ext_amd.h>
 // [/RCCL]
 
-#define STR2(v) #v
+#define STR2(v) #vv
 #define STR(v) STR2(v)
 
 #ifdef ENABLE_TRACE
